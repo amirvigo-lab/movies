@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>יומן הסרטים שלי</title>
- <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2503/2503508.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2503/2503508.png">
+    <!-- טעינת Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- טעינת אייקונים -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* הסתרת פס הגלילה בלשוניות */
@@ -17,6 +19,7 @@
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
 
+    <!-- הדר -->
     <header class="bg-gray-800 shadow-lg py-6 sticky top-0 z-10">
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center gap-4">
             <div class="flex items-center gap-3">
@@ -30,29 +33,59 @@
 
     <main class="max-w-6xl mx-auto px-4 py-8">
         
-        <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-800 p-4 rounded-xl shadow-md border border-gray-700">
-            <div class="relative flex-1">
-                <i data-lucide="search" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="חיפוש סרט או ז'אנר..."
-                    class="w-full bg-gray-900 border border-gray-700 text-white rounded-lg py-3 pr-10 pl-4 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all"
-                >
+        <!-- אזור חיפוש, סינון ועשורים -->
+        <div class="flex flex-col gap-4 mb-8 bg-gray-800 p-4 rounded-xl shadow-md border border-gray-700">
+            
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- שורת חיפוש -->
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="חיפוש סרט או ז'אנר..."
+                        class="w-full bg-gray-900 border border-gray-700 text-white rounded-lg py-3 pr-10 pl-4 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all"
+                    >
+                </div>
+                
+                <!-- מיון -->
+                <div class="flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-lg px-3">
+                    <span class="text-gray-400 text-sm whitespace-nowrap">מיון לפי:</span>
+                    <select id="sortSelect" class="bg-transparent text-white py-3 pr-2 pl-6 focus:outline-none appearance-none cursor-pointer">
+                        <option value="rating" class="bg-gray-800">דירוג (גבוה לנמוך)</option>
+                        <option value="yearDesc" class="bg-gray-800">שנה (חדש לישן)</option>
+                        <option value="yearAsc" class="bg-gray-800">שנה (ישן לחדש)</option>
+                        <option value="title" class="bg-gray-800">שם הסרט (א-ת)</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-lg px-3">
-                <span class="text-gray-400 text-sm whitespace-nowrap">מיון לפי:</span>
-                <select id="sortSelect" class="bg-transparent text-white py-3 pr-2 pl-6 focus:outline-none appearance-none cursor-pointer">
-                    <option value="rating" class="bg-gray-800">דירוג (גבוה לנמוך)</option>
-                    <option value="year" class="bg-gray-800">שנה (חדש לישן)</option>
-                    <option value="title" class="bg-gray-800">שם הסרט (א-ת)</option>
-                </select>
+
+            <!-- מסנן עשורים/שנים -->
+            <div class="flex items-center justify-between md:justify-start gap-4 border-t border-gray-700 pt-4 mt-2">
+                <div class="flex items-center gap-2 text-gray-400">
+                    <i data-lucide="calendar-range" class="w-5 h-5 text-yellow-400"></i>
+                    <span class="text-sm font-medium">סינון שנים:</span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <select id="startYear" class="bg-gray-900 border border-gray-700 text-white rounded-lg py-1.5 px-3 focus:outline-none focus:border-yellow-400 text-sm cursor-pointer appearance-none">
+                        <!-- יאוכלס דינמית -->
+                    </select>
+                    <span class="text-gray-500">-</span>
+                    <select id="endYear" class="bg-gray-900 border border-gray-700 text-white rounded-lg py-1.5 px-3 focus:outline-none focus:border-yellow-400 text-sm cursor-pointer appearance-none">
+                        <!-- יאוכלס דינמית -->
+                    </select>
+                </div>
             </div>
+
         </div>
 
+        <!-- לשוניות קטגוריות -->
         <div id="categoriesContainer" class="flex overflow-x-auto gap-2 mb-8 pb-2 hide-scrollbar">
-            </div>
+            <!-- יאוכלס דינמית ע"י JS -->
+        </div>
 
+        <!-- אזור רשת הסרטים -->
         <div id="loadingIndicator" class="text-center py-20 flex flex-col items-center">
             <i data-lucide="loader-2" class="w-16 h-16 text-yellow-400 animate-spin mb-4"></i>
             <h2 class="text-xl text-gray-400">מושך את יומן הסרטים שלך מ-GitHub...</h2>
@@ -64,7 +97,8 @@
         </div>
 
         <div id="moviesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </div>
+            <!-- יאוכלס דינמית ע"י JS -->
+        </div>
     </main>
 
     <script>
@@ -73,6 +107,10 @@
         let searchTerm = '';
         let sortBy = 'rating';
         let selectedCategory = 'הכל';
+        let minAvailableYear = 1900;
+        let maxAvailableYear = new Date().getFullYear();
+        let currentStartYear = 1900;
+        let currentEndYear = maxAvailableYear;
         let seenMovies = new Set(JSON.parse(localStorage.getItem('seenMovies') || '[]'));
 
         // רכיבי DOM
@@ -82,6 +120,8 @@
         const moviesGrid = document.getElementById('moviesGrid');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const noResults = document.getElementById('noResults');
+        const startYearSelect = document.getElementById('startYear');
+        const endYearSelect = document.getElementById('endYear');
 
         // אתחול האפליקציה
         async function init() {
@@ -89,16 +129,26 @@
                 const response = await fetch('https://raw.githubusercontent.com/amirvigo-lab/movies/refs/heads/main/moviesdata.json');
                 const data = await response.json();
                 
+                let minYearFound = 9999;
+                let maxYearFound = 0;
+
                 moviesData = data.map((item, index) => {
                     const knownFields = ["שם הסרט", "שנת יציאה", "במאי", "ציון", "דירוג"];
                     const genres = Object.keys(item)
                         .filter(key => !knownFields.includes(key) && item[key] === "1")
                         .join(', ');
+                    
+                    const year = parseInt(item['שנת יציאה']) || 0;
+                    if (year > 0) {
+                        if (year < minYearFound) minYearFound = year;
+                        if (year > maxYearFound) maxYearFound = year;
+                    }
 
                     return {
                         id: `github-${index}`,
                         title: item['שם הסרט'] || 'ללא כותרת',
                         year: item['שנת יציאה'] || '',
+                        yearNum: year,
                         genre: genres,
                         rating: parseFloat(item['ציון']) || 0,
                         director: item['במאי'] || 'לא ידוע',
@@ -106,7 +156,15 @@
                     };
                 });
 
+                // הגדרת טווחי השנים הדינמיים לפי הנתונים
+                if (minYearFound !== 9999) {
+                    // נעגל לעשור הקרוב למטה (למשל 1934 יהפוך ל-1930)
+                    minAvailableYear = Math.floor(minYearFound / 10) * 10;
+                }
+                currentStartYear = minAvailableYear;
+                
                 loadingIndicator.classList.add('hidden');
+                initYearFilters();
                 renderCategories();
                 renderMovies();
             } catch (error) {
@@ -114,7 +172,27 @@
                 loadingIndicator.innerHTML = '<h2 class="text-xl text-red-400">שגיאה בטעינת הנתונים מ-GitHub.</h2>';
             }
         }
-// רינדור הלשוניות
+
+        // אתחול תפריטי השנים
+        function initYearFilters() {
+            let options = '';
+            // ניצור אופציות בקפיצות של 10 שנים (עשורים)
+            for (let y = minAvailableYear; y <= maxAvailableYear; y += 10) {
+                options += `<option value="${y}">${y}</option>`;
+            }
+            // נוסיף את השנה הנוכחית בסוף אם היא לא עשור עגול
+            if (maxAvailableYear % 10 !== 0) {
+                 options += `<option value="${maxAvailableYear}">${maxAvailableYear}</option>`;
+            }
+
+            startYearSelect.innerHTML = options;
+            endYearSelect.innerHTML = options;
+
+            startYearSelect.value = currentStartYear;
+            endYearSelect.value = maxAvailableYear;
+        }
+
+        // רינדור הלשוניות
         function renderCategories() {
             const uniqueCategories = new Set();
             moviesData.forEach(movie => {
@@ -129,9 +207,7 @@
             const categories = ['הכל', ...Array.from(uniqueCategories).sort()];
             
             categoriesContainer.innerHTML = categories.map(category => {
-                // התיקון: ממירים מרכאות כפולות ויחידות כדי שלא ישברו את פקודת הלחיצה
                 const safeCategory = category.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-                
                 return `
                 <button 
                     onclick="setCategory('${safeCategory}')"
@@ -144,7 +220,7 @@
                 </button>
                 `;
             }).join('');
-        }       
+        }
 
         // רינדור כרטיסיות הסרטים
         function renderMovies() {
@@ -156,6 +232,12 @@
                     movie.genre.split(',').map(g => g.trim()).includes(selectedCategory)
                 );
             }
+
+            // סינון לפי עשורים/שנים
+            filtered = filtered.filter(movie => {
+                if (!movie.yearNum) return true; // אם אין שנה, נציג אותו בכל מקרה
+                return movie.yearNum >= currentStartYear && movie.yearNum <= currentEndYear;
+            });
 
             // סינון לפי חיפוש
             if (searchTerm) {
@@ -169,7 +251,8 @@
             // מיון
             filtered.sort((a, b) => {
                 if (sortBy === 'rating') return b.rating - a.rating;
-                if (sortBy === 'year') return parseInt(b.year || 0) - parseInt(a.year || 0);
+                if (sortBy === 'yearDesc') return b.yearNum - a.yearNum;
+                if (sortBy === 'yearAsc') return a.yearNum - b.yearNum;
                 if (sortBy === 'title') return a.title.localeCompare(b.title, 'he');
                 return 0;
             });
@@ -244,7 +327,6 @@
                 }).join('');
             }
             
-            // הפעלת האייקונים החדשים שנוצרו ב-DOM
             lucide.createIcons();
         }
 
@@ -256,6 +338,26 @@
 
         sortSelect.addEventListener('change', (e) => {
             sortBy = e.target.value;
+            renderMovies();
+        });
+
+        startYearSelect.addEventListener('change', (e) => {
+            currentStartYear = parseInt(e.target.value);
+            // מניעת מצב ששנת ההתחלה גדולה משנת הסיום
+            if (currentStartYear > currentEndYear) {
+                currentEndYear = currentStartYear;
+                endYearSelect.value = currentEndYear;
+            }
+            renderMovies();
+        });
+
+        endYearSelect.addEventListener('change', (e) => {
+            currentEndYear = parseInt(e.target.value);
+            // מניעת מצב ששנת הסיום קטנה משנת ההתחלה
+            if (currentEndYear < currentStartYear) {
+                currentStartYear = currentEndYear;
+                startYearSelect.value = currentStartYear;
+            }
             renderMovies();
         });
 
