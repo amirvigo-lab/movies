@@ -80,6 +80,11 @@
 
         </div>
 
+        <!-- אזור סטטיסטיקות צפייה -->
+        <div id="statsContainer" class="hidden mb-8 bg-gray-800 p-5 rounded-xl shadow-md border border-gray-700">
+            <!-- יאוכלס דינמית ע"י JS -->
+        </div>
+
         <!-- לשוניות קטגוריות -->
         <div id="categoriesContainer" class="flex overflow-x-auto gap-2 mb-8 pb-2 hide-scrollbar">
             <!-- יאוכלס דינמית ע"י JS -->
@@ -117,6 +122,7 @@
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
         const categoriesContainer = document.getElementById('categoriesContainer');
+        const statsContainer = document.getElementById('statsContainer');
         const moviesGrid = document.getElementById('moviesGrid');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const noResults = document.getElementById('noResults');
@@ -165,12 +171,74 @@
                 
                 loadingIndicator.classList.add('hidden');
                 initYearFilters();
+                renderStats();
                 renderCategories();
                 renderMovies();
             } catch (error) {
                 console.error("שגיאה במשיכת הנתונים", error);
                 loadingIndicator.innerHTML = '<h2 class="text-xl text-red-400">שגיאה בטעינת הנתונים מ-GitHub.</h2>';
             }
+        }
+
+        // רינדור סטטיסטיקות צפייה
+        function renderStats() {
+            if (moviesData.length === 0) return;
+
+            const seenMoviesList = moviesData.filter(movie => seenMovies.has(movie.id));
+            const totalMovies = moviesData.length;
+            const seenCount = seenMoviesList.length;
+            const percentage = totalMovies === 0 ? 0 : Math.round((seenCount / totalMovies) * 100);
+
+            statsContainer.classList.remove('hidden');
+
+            const categoryCounts = {};
+            seenMoviesList.forEach(movie => {
+                if (movie.genre) {
+                    movie.genre.split(',').forEach(g => {
+                        const trimmed = g.trim();
+                        if (trimmed) {
+                            categoryCounts[trimmed] = (categoryCounts[trimmed] || 0) + 1;
+                        }
+                    });
+                }
+            });
+
+            const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+
+            const categoriesHtml = sortedCategories.length > 0 
+                ? sortedCategories.map(([cat, count]) => `
+                    <div class="flex items-center justify-between bg-gray-900/50 px-3 py-1.5 rounded border border-gray-700/50">
+                        <span class="text-sm text-gray-300">${cat}</span>
+                        <span class="text-sm font-bold text-yellow-400 bg-gray-800 px-2 rounded">${count}</span>
+                    </div>
+                `).join('')
+                : `<div class="col-span-full text-center text-gray-500 text-sm mt-4">סמן סרטים כנצפים כדי לראות פילוח ז'אנרים</div>`;
+
+            statsContainer.innerHTML = `
+                <div class="flex items-center gap-2 mb-4 text-white">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-yellow-400"></i>
+                    <h3 class="text-lg font-bold">סטטיסטיקות צפייה אישיות</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex flex-col justify-center items-center p-4 bg-gray-900 rounded-lg border border-gray-700">
+                        <div class="text-4xl font-black text-yellow-400 mb-1">${seenCount} <span class="text-xl text-gray-500 font-normal">/ ${totalMovies}</span></div>
+                        <div class="text-sm text-gray-400 mb-3">סרטים שראית מתוך הרשימה</div>
+                        <div class="w-full bg-gray-800 rounded-full h-2 mt-auto">
+                            <div class="bg-yellow-400 h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-2">${percentage}% מכלל הסרטים</div>
+                    </div>
+                    
+                    <div class="md:col-span-2 p-4 bg-gray-900 rounded-lg border border-gray-700">
+                        <div class="text-sm text-gray-400 mb-3">הז'אנרים הנצפים ביותר שלך:</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-32 overflow-y-auto hide-scrollbar content-start">
+                            ${categoriesHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
         }
 
         // אתחול תפריטי השנים
@@ -310,7 +378,7 @@
                                 </div>
                                 
                                 <p class="text-gray-300 text-sm mt-auto border-t border-gray-700/50 pt-4">
-                                    במאי: ${movie.director} | דירוג אישי: ${movie.personalRating}
+                                    במאי: ${movie.director} | דירוג כללי: ${movie.personalRating}
                                 </p>
 
                                 <button 
@@ -374,6 +442,7 @@
                 seenMovies.add(movieId);
             }
             localStorage.setItem('seenMovies', JSON.stringify(Array.from(seenMovies)));
+            renderStats(); // עדכון הסטטיסטיקות מיד עם הלחיצה
             renderMovies();
         };
 
